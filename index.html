@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link href="https://fonts.googleapis.com/css?family=Special+Elite" rel="stylesheet">
+	<title>Image matching</title>
+	<link rel="stylesheet" type="text/css" href="grid/simple-grid.min.css">
+	<style type="text/css">
+		body {
+			background: #000;
+			padding: 0px;
+			margin: 0px;
+			color: #fff;
+		}
+		img {
+			max-width: 100%;
+		}
+		.header {
+			background: url(bg.jpg);
+			height: 200px;
+			background-size: cover;
+		}
+		.fade {
+			height: 100%;
+			background: -moz-linear-gradient(top,  rgba(0,0,0,0) 0%, rgba(0,0,0,1) 90%);
+			background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,0,0,0)), color-stop(90%,rgba(0,0,0,1)));
+			background: -webkit-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 90%);
+			background: -o-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 90%);
+			background: -ms-linear-gradient(top,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 90%);
+			background: linear-gradient(to bottom,  rgba(0,0,0,0) 0%,rgba(0,0,0,1) 90%);
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff',GradientType=0 );
+		}
+		h1 {
+			color: #fff;
+			font-family: 'Special Elite', cursive;
+			margin: 0px;
+			text-align: center;
+			font-size: 50px;
+		}
+		#imageLoader {
+			display: none;
+		}
+		a {
+			font-family: 'Special Elite', cursive;
+			border: 1px solid #fff;
+			padding: 10px 15px;
+			border-radius: 5px;
+			text-decoration: none;
+			color: #fff;			
+		}
+		.col-4 {
+			color: #ddd;
+		}
+	</style>
+</head>
+<body>
+	<div class="header">
+		<div class="fade"></div>
+	</div>
+	<h1>Looking for hotwheels?</h1><br>
+	<form id="form" style="text-align: center;">
+		<input type="file" id="imageLoader" name="imageLoader"/><br>
+		<a href="#" id="select">Select your file</a><br><br><br>
+		<img class="prev" style="width: 300px;"><br><br>
+	</form>
+	<div class="container">
+		<div class="results row"></div>
+	</div>
+</body>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="masonry.js"></script>
+<script type="text/javascript">
+	$("#select").click(function(){
+		$("#imageLoader").click();
+	})
+	$("#imageLoader").on("change", function(){
+		$(".results").html("")
+		var reader = new FileReader();
+		reader.onload = function(e){
+			$(".prev").attr('src',e.target.result);
+			$(".results").append("<h4 style='color:#fff;'>Top ten results</h4><hr>")
+		}
+		reader.readAsDataURL(this.files[0])
+		$("#form").submit();
+		$("#select").html("Searching...")
+	})
+	$("#form").submit(function(e){
+		$.ajax({
+			url: "http://localhost:5000",
+			type: "POST",
+			data: new FormData(this),
+			processData: false,
+			contentType: false,
+			dataType: "json",
+			success: function(data){
+				$("#results").html("")
+				for(var i=0; i<10; i++){
+					item = data[i]
+					console.log(item)
+					var node = "<div class='col-4'><img src='"+item[0]+"'></div>"
+					$(".results").append(node)					
+				}
+				// data.forEach(function(item){
+				// })
+			$("#select").html("Select your file")
+			}
+		})
+		e.preventDefault();
+	})
+	// <br>Confidence : "+item[1]+"
+</script>
+</html>
